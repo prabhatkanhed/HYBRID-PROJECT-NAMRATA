@@ -1,0 +1,51 @@
+# ---------------------------------------------------------------
+# Inventory Manager — Makefile
+# C sources compile with CC (gcc), C++ sources with CXX (g++).
+# Final link is done by g++ so the C++ runtime is included.
+# ---------------------------------------------------------------
+
+CC      := gcc
+CXX     := g++
+CFLAGS  := -Wall -Wextra -std=c11   -Iinclude
+CXXFLAGS:= -Wall -Wextra -std=c++17 -Iinclude
+LDFLAGS :=
+
+TARGET  := inventory
+OBJDIR  := build
+
+# Source files
+C_SRCS   := src/inventory.c
+CPP_SRCS := src/main.cpp
+
+# Object files (placed in build/)
+C_OBJS   := $(patsubst src/%.c,   $(OBJDIR)/%.o, $(C_SRCS))
+CPP_OBJS := $(patsubst src/%.cpp, $(OBJDIR)/%.o, $(CPP_SRCS))
+
+ALL_OBJS := $(C_OBJS) $(CPP_OBJS)
+
+# ---------------------------------------------------------------
+.PHONY: all clean run
+
+all: $(OBJDIR) $(TARGET)
+
+$(OBJDIR):
+	mkdir -p $(OBJDIR)
+
+# Link
+$(TARGET): $(ALL_OBJS)
+	$(CXX) $(LDFLAGS) -o $@ $^
+	@echo "Build OK -> ./$(TARGET)"
+
+# Compile C
+$(OBJDIR)/%.o: src/%.c
+	$(CC) $(CFLAGS) -c -o $@ $<
+
+# Compile C++
+$(OBJDIR)/%.o: src/%.cpp
+	$(CXX) $(CXXFLAGS) -c -o $@ $<
+
+clean:
+	rm -rf $(OBJDIR) $(TARGET) inventory.dat
+
+run: all
+	./$(TARGET)
